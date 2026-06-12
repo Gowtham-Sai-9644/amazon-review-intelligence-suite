@@ -42,3 +42,8 @@ npm-debug.log*
 
 # ─── Misc ───
 .gemini/
+
+# ─── Databases ───
+*.db
+*.sqlite
+
