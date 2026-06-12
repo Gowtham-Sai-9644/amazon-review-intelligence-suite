@@ -286,6 +286,33 @@ export default function AnalyzerPage() {
                     <p className="text-sm font-semibold text-white/80 mt-1">{result.explanation.length_impact}</p>
                   </div>
                 </div>
+
+                {/* Natural Explanation */}
+                {result.natural_explanation && (
+                  <div className="glass rounded-2xl p-5 border border-indigo-500/10 relative overflow-hidden bg-gradient-to-br from-indigo-500/5 to-transparent">
+                    <p className="text-xs text-indigo-400 uppercase tracking-wider font-semibold">AI Diagnostic Explanation</p>
+                    <p className="text-sm text-white/80 mt-2.5 leading-relaxed font-medium">
+                      "{result.natural_explanation}"
+                    </p>
+                  </div>
+                )}
+
+                {/* AI Recommendations */}
+                {result.recommendations && result.recommendations.length > 0 && (
+                  <div className="glass rounded-2xl p-5 border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-transparent">
+                    <p className="text-xs text-violet-400 uppercase tracking-wider font-semibold">How to Improve this Review</p>
+                    <ul className="mt-3.5 space-y-2.5">
+                      {result.recommendations.map((rec, i) => (
+                        <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                          <span className="w-5 h-5 rounded-full bg-violet-500/10 flex items-center justify-center flex-shrink-0 mt-0.5 text-violet-400 font-bold">
+                            💡
+                          </span>
+                          <span className="leading-normal">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

@@ -24,6 +24,8 @@ export interface AnalysisResponse {
   quality_rating: string;
   sentiment: SentimentData;
   explanation: ExplanationData;
+  recommendations: string[];
+  natural_explanation: string;
 }
 
 export interface AnalyticsResponse {

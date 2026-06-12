@@ -30,6 +30,9 @@ class AnalyzeReviewResponse(BaseModel):
     quality_rating: str = Field(..., description="Quality bucket (Low, Medium, High)")
     sentiment: SentimentResult
     explanation: ExplanationResult
+    recommendations: List[str] = Field(default=[], description="Actionable AI recommendations to improve review helpfulness")
+    natural_explanation: str = Field(default="", description="A natural language summary explaining the prediction")
+
 
 # Analytics Response Schema
 class AnalyticsResponse(BaseModel):
