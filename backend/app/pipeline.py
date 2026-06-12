@@ -81,9 +81,8 @@ class MLInferencePipeline:
             # Load classifier
             self.hybrid_model = joblib.load(os.path.join(self.models_dir, "hybrid_xgb.pkl"))
             
-            # Load embeddings extractor
+            # Load embeddings extractor (loaded lazily on first prediction request)
             self.emb_extractor = TextEmbeddingExtractor()
-            self.emb_extractor.load_model()
             
             # Load SHAP manager
             self.shap_manager = SHAPExplainerManager(models_dir=self.models_dir)
