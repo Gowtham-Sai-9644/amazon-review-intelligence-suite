@@ -23,6 +23,10 @@ class ExplanationResult(BaseModel):
     readability_impact: str
     length_impact: str
 
+class RecommendationItem(BaseModel):
+    impact: str = Field(..., description="Impact rating (High, Medium, Low)")
+    text: str = Field(..., description="Actionable recommendation description")
+
 # Review Analyzer response schema
 class AnalyzeReviewResponse(BaseModel):
     helpfulness_score: float = Field(..., description="Predicted helpfulness percentage (0-100)")
@@ -30,8 +34,11 @@ class AnalyzeReviewResponse(BaseModel):
     quality_rating: str = Field(..., description="Quality bucket (Low, Medium, High)")
     sentiment: SentimentResult
     explanation: ExplanationResult
-    recommendations: List[str] = Field(default=[], description="Actionable AI recommendations to improve review helpfulness")
+    recommendations: List[RecommendationItem] = Field(default=[], description="Actionable prioritized AI recommendations")
     natural_explanation: str = Field(default="", description="A natural language summary explaining the prediction")
+    inference_time_ms: float = Field(..., description="Inference execution duration")
+    model_version: str = Field(..., description="Model binary release version")
+
 
 
 # Analytics Response Schema

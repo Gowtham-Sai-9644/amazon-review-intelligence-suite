@@ -10,9 +10,9 @@ module.exports = {
       colors: {
         background: '#020617',
         surface: { DEFAULT: '#0F172A', light: '#1E293B' },
-        primary: { DEFAULT: '#6366F1', 400: '#818CF8', 500: '#6366F1', 600: '#4F46E5', 700: '#4338CA' },
-        secondary: { DEFAULT: '#8B5CF6', 400: '#A78BFA', 500: '#8B5CF6' },
-        accent: { DEFAULT: '#22D3EE', 400: '#22D3EE', 500: '#06B6D4' },
+        primary: { DEFAULT: '#3B82F6', 400: '#60A5FA', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8' },
+        secondary: { DEFAULT: '#8B5CF6', 400: '#A78BFA', 500: '#8B5CF6', 600: '#7C3AED', 700: '#6D28D9' },
+        accent: { DEFAULT: '#06B6D4', 400: '#22D3EE', 500: '#06B6D4', 600: '#0891B2', 700: '#0E7490' },
         border: 'rgba(255, 255, 255, 0.06)',
       },
       fontFamily: {

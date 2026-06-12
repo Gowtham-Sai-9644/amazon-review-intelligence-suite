@@ -18,14 +18,21 @@ export interface ExplanationData {
   length_impact: string;
 }
 
+export interface RecommendationItem {
+  impact: string;
+  text: string;
+}
+
 export interface AnalysisResponse {
   helpfulness_score: number;
   confidence: number;
   quality_rating: string;
   sentiment: SentimentData;
   explanation: ExplanationData;
-  recommendations: string[];
+  recommendations: RecommendationItem[];
   natural_explanation: string;
+  inference_time_ms: number;
+  model_version: string;
 }
 
 export interface AnalyticsResponse {
@@ -98,5 +105,17 @@ export async function getBusinessInsights(): Promise<BusinessInsightsResponse> {
 export async function getErrorAnalysis(): Promise<ErrorAnalysisResponse> {
   const res = await fetch(`${API_BASE_URL}/error-analysis`);
   if (!res.ok) throw new Error('Failed to fetch error analysis');
+  return res.json();
+}
+
+export interface HealthCheckResponse {
+  status: string;
+  model_loaded: boolean;
+  database_connected: boolean;
+}
+
+export async function getHealthCheck(): Promise<HealthCheckResponse> {
+  const res = await fetch(`${API_BASE_URL}/health`);
+  if (!res.ok) throw new Error('Failed to fetch system health');
   return res.json();
 }

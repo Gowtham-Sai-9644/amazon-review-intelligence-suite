@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import joblib
 import numpy as np
 from typing import Dict, Any, List
@@ -14,7 +15,7 @@ from preprocess import (
 )
 from explain import SHAPExplainerManager
 
-def generate_ai_recommendations(text: str, feats: Dict[str, float], score: float) -> List[str]:
+def generate_ai_recommendations(text: str, feats: Dict[str, float], score: float) -> List[Dict[str, str]]:
     recs = []
     text_lower = text.lower()
     word_count = feats["word_count"]
@@ -22,35 +23,35 @@ def generate_ai_recommendations(text: str, feats: Dict[str, float], score: float
     
     # 1. Word count recommendation
     if word_count < 45:
-        recs.append("Increase review detail (aim for 50-150 words) to share a complete experience.")
+        recs.append({"impact": "High", "text": "Increase review detail (aim for 50-150 words) to share a complete experience."})
     elif word_count > 250:
-        recs.append("Consider summarizing key points to keep the review concise and readable.")
+        recs.append({"impact": "Medium", "text": "Consider summarizing key points to keep the review concise and readable."})
         
     # 2. Long-term usage recommendation
     time_keywords = ["day", "week", "month", "year", "time", "bought", "used", "purchased", "duration", "long-term", "run"]
     has_time = any(w in text_lower for w in time_keywords)
     if not has_time and word_count < 100:
-        recs.append("State the usage duration (e.g., 'after 3 weeks of daily use') to establish credibility.")
+        recs.append({"impact": "Medium", "text": "State the usage duration (e.g., 'after 3 weeks of daily use') to establish credibility."})
         
     # 3. Product attributes / details
     attr_keywords = ["durability", "durable", "easy", "quality", "material", "feel", "keyboard", "battery", "camera", "screen", "support", "service", "charge", "refund", "price", "worth", "sturdy", "fit"]
     has_attrs = any(w in text_lower for w in attr_keywords)
     if not has_attrs and word_count < 120:
-        recs.append("Mention specific product features, durability, build quality, or ease of use.")
+        recs.append({"impact": "High", "text": "Mention specific product features, durability, build quality, or ease of use."})
         
     # 4. Balanced review structure
     balance_keywords = ["pros", "cons", "plus", "minus", "however", "although", "but", "while", "except", "limitation"]
     has_balance = any(w in text_lower for w in balance_keywords)
     if not has_balance and word_count < 100:
-        recs.append("Include both advantages and limitations (pros/cons) for a more objective perspective.")
+        recs.append({"impact": "Medium", "text": "Include both advantages and limitations (pros/cons) for a more objective perspective."})
         
     # 5. Tone / Exclamation points
     if excl_density > 0.02:
-        recs.append("Reduce the usage of exclamation marks ('!') to maintain a professional, objective tone.")
+        recs.append({"impact": "Low", "text": "Reduce the usage of exclamation marks ('!') to maintain a professional, objective tone."})
         
     # Fallback if review is already near-perfect
     if not recs:
-        recs.append("Your review is highly optimized! Keep writing detailed reviews with feature-specific feedback.")
+        recs.append({"impact": "Low", "text": "Your review is highly optimized! Keep writing detailed reviews with feature-specific feedback."})
         
     return recs
 
@@ -91,6 +92,7 @@ class MLInferencePipeline:
  
     def predict(self, text: str) -> Dict[str, Any]:
         self.load_pipeline()
+        start_time = time.perf_counter()
         
         # 1. Extract tabular features
         tabular_feats = extract_tabular_features(text)
@@ -136,6 +138,9 @@ class MLInferencePipeline:
         recs = generate_ai_recommendations(text, tabular_feats, helpfulness_score)
         nat_expl = generate_natural_explanation(text, tabular_feats, helpfulness_score)
         
+        # 9. Compute inference execution time
+        inference_time_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        
         return {
             "helpfulness_score": helpfulness_score,
             "confidence": confidence,
@@ -153,6 +158,7 @@ class MLInferencePipeline:
             },
             "length": int(word_count),
             "recommendations": recs,
-            "natural_explanation": nat_expl
+            "natural_explanation": nat_expl,
+            "inference_time_ms": inference_time_ms,
+            "model_version": "1.0.0-hybrid-xgb"
         }
-
