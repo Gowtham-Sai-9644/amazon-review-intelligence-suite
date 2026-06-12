@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Navigation from '../components/Navigation';
+import CommandPalette from '../components/CommandPalette';
 import DeploymentStatus from '../components/DeploymentStatus';
 
 const inter = Inter({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <Navigation />
+        <CommandPalette />
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 relative z-10">
           {children}

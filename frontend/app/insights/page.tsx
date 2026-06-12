@@ -2,21 +2,27 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Loader2, AlertCircle, MessageSquare, TrendingUp, TrendingDown, Sparkles, HelpCircle, Layers, CheckCircle
-} from 'lucide-react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import { Loader2, AlertCircle, MessageSquare, TrendingUp, TrendingDown, Sparkles, HelpCircle, Layers, CheckCircle } from 'lucide-react';
 import { getBusinessInsights, BusinessInsightsResponse } from '../../lib/api';
+import dynamic from 'next/dynamic';
+
+// Lazy load LengthChart to speed up FCP and avoid layout shifts
+const LengthChart = dynamic(() => import('../../components/LengthChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="glass rounded-3xl p-10 min-h-[350px] border-white/5 animate-pulse flex flex-col items-center justify-center gap-4 text-center">
+      <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+      <span className="text-xs text-slate-500 font-mono">Loading length metrics chart...</span>
+    </div>
+  )
+});
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.5, ease: 'easeOut' },
   },
 };
 
@@ -26,29 +32,6 @@ const stagger = {
     transition: { staggerChildren: 0.08, delayChildren: 0.1 },
   },
 };
-
-/* ─── Custom Tooltip ─── */
-function ChartTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value: number }>;
-  label?: string;
-}) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div
-      className="glass rounded-xl px-4 py-3 border border-white/10 shadow-2xl bg-slate-900"
-    >
-      <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 font-mono">{label}</p>
-      <p className="text-sm font-mono font-bold text-blue-400">
-        {payload[0].value.toFixed(1)}% helpfulness
-      </p>
-    </div>
-  );
-}
 
 /* ─── Keyword Row ─── */
 function KeywordRow({
@@ -70,13 +53,13 @@ function KeywordRow({
 
   return (
     <motion.div variants={fadeUp} className="flex items-center gap-3 group">
-      <span className="text-[10px] font-mono text-gray-600 w-5 text-right shrink-0">
+      <span className="text-[10px] font-mono text-slate-600 w-5 text-right shrink-0">
         {String(index + 1).padStart(2, '0')}
       </span>
-      <span className="text-xs font-mono text-gray-300 w-28 truncate group-hover:text-white transition-colors">
+      <span className="text-xs font-mono text-slate-300 w-28 truncate group-hover:text-white transition-colors">
         {word}
       </span>
-      <div className="flex-1 h-1.5 rounded-full bg-white/[0.04] overflow-hidden border border-white/[0.02]">
+      <div className="flex-1 h-1.5 rounded-full bg-white/[0.03] overflow-hidden border border-white/[0.01]">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{
@@ -85,7 +68,7 @@ function KeywordRow({
           }}
         />
       </div>
-      <span className="text-[11px] font-mono text-gray-400 w-14 text-right tabular-nums">
+      <span className="text-[10px] font-mono text-slate-400 w-14 text-right tabular-nums">
         {correlation > 0 ? '+' : ''}{correlation.toFixed(3)}
       </span>
     </motion.div>
@@ -109,10 +92,10 @@ export default function InsightsPage() {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl animate-pulse-glow" />
+          <div className="absolute inset-0 rounded-full bg-blue-500/15 blur-xl animate-pulse-glow" />
           <Loader2 className="w-8 h-8 text-blue-400 animate-spin relative" />
         </div>
-        <p className="text-sm text-gray-500 font-semibold font-mono">Loading product insights…</p>
+        <p className="text-xs text-slate-500 font-semibold font-mono">Compiling review insights…</p>
       </div>
     );
   }
@@ -123,8 +106,8 @@ export default function InsightsPage() {
       <div className="min-h-[60vh] flex items-center justify-center px-6">
         <div className="glass p-8 max-w-md w-full text-center border-rose-500/20 bg-gradient-to-b from-rose-500/[0.06] to-transparent rounded-3xl shadow-2xl">
           <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-white mb-2">Insights Unavailable</h3>
-          <p className="text-xs text-gray-400 leading-relaxed font-light">
+          <h3 className="text-base font-bold text-white mb-2">Insights Offline</h3>
+          <p className="text-xs text-gray-500 leading-relaxed font-light">
             {error || 'Could not retrieve business insights.'}
           </p>
         </div>
@@ -149,44 +132,44 @@ export default function InsightsPage() {
   const topUnhelpfulCorr = unhelpfulSorted[0]?.correlation || -0.18;
 
   return (
-    <div className="space-y-10 animate-fade-in">
-      {/* ═══ Header ═══ */}
+    <div className="space-y-8 animate-fade-in pb-12">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <span className="section-label">Product Manager Console</span>
-        <h1 className="section-title mt-2">Keyword & Quality Intelligence</h1>
+        <h1 className="section-title mt-2">Quality Intelligence</h1>
         <p className="section-desc mt-3">
-          Actionable intelligence extracted from review patterns — mapping optimal review characteristics, keyword correlations, and length-helpfulness dynamics.
+          Actionable business intelligence extracted from review dynamics — mapping optimal lengths and keyword impact matrices.
         </p>
       </motion.div>
 
-      {/* ═══ AI Executive Summary Card ═══ */}
+      {/* PM Executive Summary Card */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="glass rounded-3xl p-6 border-white/10 bg-gradient-to-br from-blue-500/[0.03] to-transparent space-y-3"
+        transition={{ duration: 0.5, delay: 0.05 }}
+        className="glass rounded-3xl p-6 border-white/10 bg-gradient-to-br from-blue-500/[0.02] to-transparent space-y-3"
       >
-        <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase font-mono">
+        <div className="flex items-center gap-2 text-[10px] font-bold text-blue-400 uppercase font-mono tracking-wider">
           <Sparkles className="w-4 h-4 text-blue-400" />
           PM Executive Summary
         </div>
-        <p className="text-sm text-gray-300 leading-relaxed font-light">
-          Review curation should prioritize comments in the <span className="font-semibold text-white font-mono">{data.optimal_word_count_min}➔{data.optimal_word_count_max} words</span> range, which carry the highest informational density. Linguistic analysis shows that reviews containing the descriptive term <span className="text-emerald-400 font-mono font-semibold">"{topHelpfulWord}"</span> have the strongest positive correlation with review helpfulness ({topHelpfulCorr.toFixed(2)}), whereas generic negative descriptors like <span className="text-rose-400 font-mono font-semibold">"{topUnhelpfulWord}"</span> are heavily correlated with unhelpful classifications ({topUnhelpfulCorr.toFixed(2)}).
+        <p className="text-sm text-slate-300 leading-relaxed font-light">
+          Review curation should prioritize comments in the <span className="font-semibold text-white font-mono">{data.optimal_word_count_min}➔{data.optimal_word_count_max} words</span> range. Linguistic analysis shows that reviews containing <span className="text-emerald-400 font-mono font-semibold">"{topHelpfulWord}"</span> have the strongest positive correlation with review helpfulness ({topHelpfulCorr.toFixed(2)}), whereas generic negative descriptors like <span className="text-rose-400 font-mono font-semibold">"{topUnhelpfulWord}"</span> are heavily correlated with unhelpful classifications ({topUnhelpfulCorr.toFixed(2)}).
         </p>
       </motion.div>
 
-      {/* ═══ Optimal Word Count Card ═══ */}
+      {/* Optimal Word Count Card */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-40px' }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
-        <div className="glass-strong p-8 bg-gradient-to-br from-blue-500/[0.06] via-transparent to-violet-500/[0.04] border-white/10 rounded-3xl shadow-2xl">
+        <div className="glass-strong p-8 bg-gradient-to-br from-blue-500/[0.03] via-transparent to-violet-500/[0.02] border-white/10 rounded-3xl shadow-2xl">
           <div className="flex items-start gap-5">
             <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
               <MessageSquare className="w-6 h-6 text-blue-400" />
@@ -199,13 +182,13 @@ export default function InsightsPage() {
                 <span className="text-4xl font-extrabold text-white font-mono tracking-tight">
                   {data.optimal_word_count_min}
                 </span>
-                <span className="text-lg text-gray-500 font-light">—</span>
+                <span className="text-lg text-slate-600 font-light">—</span>
                 <span className="text-4xl font-extrabold text-white font-mono tracking-tight">
                   {data.optimal_word_count_max}
                 </span>
-                <span className="text-xs text-gray-500 font-bold uppercase tracking-wider ml-1">words</span>
+                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider ml-1 font-mono">words</span>
               </div>
-              <p className="text-xs text-gray-400 mt-3 leading-relaxed font-light">
+              <p className="text-xs text-slate-400 mt-3 leading-relaxed font-light">
                 Customer reviews within this word length range achieve the highest average helpfulness scores. Reviews that are too brief lack informational context, while reviews that are too wordy cause reader fatigue.
               </p>
             </div>
@@ -213,74 +196,34 @@ export default function InsightsPage() {
         </div>
       </motion.div>
 
-      {/* ═══ Length vs Helpfulness Chart ═══ */}
+      {/* Length vs Helpfulness Chart Card */}
       <motion.div
-        initial={{ opacity: 0, y: 28 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <div className="glass p-6 lg:p-8 border-white/10 rounded-3xl shadow-2xl">
           <div className="mb-6">
-            <h3 className="text-base font-bold text-gray-100 tracking-tight">
+            <h3 className="text-base font-bold text-slate-100 tracking-tight">
               Length-to-Helpfulness Distribution
             </h3>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Average helpfulness score calculated per word count segment
             </p>
           </div>
-          <div className="h-[320px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data.length_vs_helpfulness}
-                margin={{ top: 8, right: 16, left: -12, bottom: 4 }}
-                barCategoryGap="20%"
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.03)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="range"
-                  stroke="#64748B"
-                  fontSize={10}
-                  fontWeight={600}
-                  tickLine={false}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
-                  dy={8}
-                />
-                <YAxis
-                  stroke="#64748B"
-                  fontSize={10}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v: number) => `${v}%`}
-                />
-                <Tooltip
-                  content={<ChartTooltip />}
-                  cursor={{ fill: 'rgba(255,255,255,0.015)' }}
-                />
-                <Bar
-                  dataKey="avg_helpfulness"
-                  name="Avg Helpfulness"
-                  fill="#3B82F6"
-                  radius={[6, 6, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <LengthChart data={data.length_vs_helpfulness} />
         </div>
       </motion.div>
 
-      {/* ═══ Keywords Grid ═══ */}
+      {/* Keywords Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Helpful Keywords */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <div className="glass p-6 lg:p-8 border-white/10 rounded-3xl shadow-2xl">
             <div className="flex items-center gap-3 mb-6">
@@ -288,8 +231,8 @@ export default function InsightsPage() {
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-gray-100 uppercase tracking-wide">High Helpfulness Indicators</h3>
-                <p className="text-[9px] text-gray-500 uppercase tracking-widest font-mono">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">High Helpfulness Indicators</h3>
+                <p className="text-[9px] text-slate-500 uppercase tracking-widest font-mono mt-0.5">
                   Positive correlation factors
                 </p>
               </div>
@@ -301,7 +244,7 @@ export default function InsightsPage() {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {helpfulSorted.map((kw, i) => (
+              {helpfulSorted.slice(0, 8).map((kw, i) => (
                 <KeywordRow
                   key={kw.word}
                   index={i}
@@ -317,10 +260,10 @@ export default function InsightsPage() {
 
         {/* Unhelpful Keywords */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
         >
           <div className="glass p-6 lg:p-8 border-white/10 rounded-3xl shadow-2xl">
             <div className="flex items-center gap-3 mb-6">
@@ -328,8 +271,8 @@ export default function InsightsPage() {
                 <TrendingDown className="w-4 h-4 text-rose-400" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-gray-100 uppercase tracking-wide">Unhelpful Indicators</h3>
-                <p className="text-[9px] text-gray-500 uppercase tracking-widest font-mono">
+                <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Unhelpful Indicators</h3>
+                <p className="text-[9px] text-slate-500 uppercase tracking-widest font-mono mt-0.5">
                   Negative correlation factors
                 </p>
               </div>
@@ -341,7 +284,7 @@ export default function InsightsPage() {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              {unhelpfulSorted.map((kw, i) => (
+              {unhelpfulSorted.slice(0, 8).map((kw, i) => (
                 <KeywordRow
                   key={kw.word}
                   index={i}
@@ -356,37 +299,37 @@ export default function InsightsPage() {
         </motion.div>
       </div>
 
-      {/* ═══ Quality Drivers & PM Recommendations ═══ */}
+      {/* Quality Drivers & PM Recommendations */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-40px' }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className="glass p-8 border-white/10 rounded-3xl shadow-2xl space-y-6"
       >
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-500/80">
             Actionable Optimization Guide
           </span>
-          <h3 className="text-base font-bold text-gray-100 tracking-tight mt-1.5">
+          <h3 className="text-base font-bold text-slate-200 tracking-tight mt-1.5">
             PM Curation Strategy
           </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/[0.04]">
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h4 className="text-xs font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" /> Optimize Curation Algorithmic Cues
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Optimize Curation Algorithmic Cues
             </h4>
-            <p className="text-xs text-gray-400 leading-relaxed font-light">
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
               Prioritize reviews that reference specific design features, durability details, or structural pros and cons over generic sentiment ("great laptop"). These descriptive elements align with high-relevance decision metrics.
             </p>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <h4 className="text-xs font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-400" /> Length Normalization Cues
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> Length Normalization Cues
             </h4>
-            <p className="text-xs text-gray-400 leading-relaxed font-light">
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
               Prompt customers during review submission to input detail if their response is under 40 words. Providing guidance (e.g. "How did this hold up over time?") triggers higher helpfulness scores.
             </p>
           </div>

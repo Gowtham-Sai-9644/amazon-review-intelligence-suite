@@ -8,21 +8,24 @@
    ══════════════════════════════════════════════════════════ */
 
 :root {
-  --background: #020617;
-  --surface: #0F172A;
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --primary: #3B82F6;
-  --secondary: #8B5CF6;
+  --background: #030712;
+  --surface: #090d1a;
+  --card-bg: rgba(15, 23, 42, 0.45);
+  --primary: #2563EB;
+  --secondary: #7C3AED;
   --accent: #06B6D4;
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
   --text: #F8FAFC;
-  --muted: #94A3B8;
+  --muted: #64748B;
+  
+  --aris-blue: #2563EB;
+  --aris-violet: #7C3AED;
 }
 
 @layer base {
-  * { border-color: rgba(255, 255, 255, 0.08); }
+  * { border-color: rgba(255, 255, 255, 0.06); }
 
   body {
     background: var(--background);
@@ -34,98 +37,95 @@
   }
 
   ::selection {
-    background: rgba(59, 130, 246, 0.3);
+    background: rgba(37, 99, 235, 0.3);
     color: #F8FAFC;
   }
 }
 
-/* ─── Premium Glassmorphism System ──────────────────────── */
+/* ─── Premium Apple Vision Pro Glassmorphism ───────────────── */
 
 @layer components {
   .glass {
     background: var(--card-bg);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px; /* rounded-3xl */
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-      0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
+      0 12px 40px -12px rgba(0, 0, 0, 0.65);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(36px) saturate(200%);
     -webkit-backdrop-filter: blur(36px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 24px;
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-      0 12px 48px 0 rgba(0, 0, 0, 0.5);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.08),
+      0 20px 60px -15px rgba(0, 0, 0, 0.8);
   }
 
   .glass-hover {
     @apply glass transition-all duration-500 ease-out;
   }
   .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(15, 23, 42, 0.55);
+    border-color: rgba(124, 58, 237, 0.35); /* Glow border */
     transform: translateY(-2px);
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-      0 16px 48px rgba(0, 0, 0, 0.4),
-      0 0 40px rgba(59, 130, 246, 0.06);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.08),
+      0 20px 48px -10px rgba(0, 0, 0, 0.7),
+      0 0 30px -5px rgba(37, 99, 235, 0.12);
   }
 
-  /* ─── Interactive Buttons ─── */
+  /* ─── Elite Buttons ─── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2.5 px-6 py-3
-           text-white text-sm font-semibold rounded-xl
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3
+           text-white text-xs font-semibold uppercase tracking-wider rounded-xl
            transition-all duration-300 ease-out
            disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
-    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%);
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    background: linear-gradient(135deg, var(--aris-blue) 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   }
   .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2.5 px-6 py-3
-           text-gray-300 hover:text-white text-sm font-semibold rounded-xl
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3
+           text-gray-400 hover:text-white text-xs font-semibold uppercase tracking-wider rounded-xl
            transition-all duration-300 ease-out;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
   .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
     transform: translateY(-1px);
   }
 
   /* ─── Typography Scales ─── */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #60A5FA 0%, #3B82F6 25%, #8B5CF6 50%, #06B6D4 75%, #60A5FA 100%);
-    background-size: 200% 200%;
-    animation: gradient-flow 6s ease infinite;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400;
   }
 
   .section-label {
-    @apply text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400;
+    @apply text-[10px] font-bold uppercase tracking-[0.25em] text-blue-500/80;
   }
 
   .section-title {
-    @apply text-3xl sm:text-5xl font-extrabold text-white tracking-tight;
+    @apply text-4xl sm:text-6xl font-black text-white tracking-tight;
   }
 
   .section-desc {
-    @apply text-base text-gray-400 leading-relaxed max-w-2xl font-light;
+    @apply text-base text-slate-400 leading-relaxed max-w-2xl font-light;
   }
 
   .metric-label {
-    @apply text-[11px] font-semibold text-gray-500 uppercase tracking-wider;
+    @apply text-[10px] font-bold text-slate-500 uppercase tracking-widest;
   }
 
   .metric-value {
@@ -135,15 +135,15 @@
   /* ─── Badge Variants ─── */
   .badge {
     @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
-           text-[10px] font-bold tracking-wider border uppercase;
+           text-[9px] font-bold tracking-widest border uppercase;
   }
-  .badge-indigo { @apply badge bg-blue-500/10 text-blue-400 border-blue-500/25; }
-  .badge-primary { @apply badge bg-blue-500/10 text-blue-400 border-blue-500/25; }
-  .badge-emerald { @apply badge bg-emerald-500/10 text-emerald-400 border-emerald-500/25; }
-  .badge-amber { @apply badge bg-amber-500/10 text-amber-400 border-amber-500/25; }
-  .badge-rose { @apply badge bg-rose-500/10 text-rose-400 border-rose-500/25; }
-  .badge-cyan { @apply badge bg-cyan-500/10 text-cyan-400 border-cyan-500/25; }
-  .badge-violet { @apply badge bg-violet-500/10 text-violet-400 border-violet-500/25; }
+  .badge-indigo { @apply badge bg-blue-500/10 text-blue-400 border-blue-500/20; }
+  .badge-primary { @apply badge bg-blue-500/10 text-blue-400 border-blue-500/20; }
+  .badge-emerald { @apply badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20; }
+  .badge-amber { @apply badge bg-amber-500/10 text-amber-400 border-amber-500/20; }
+  .badge-rose { @apply badge bg-rose-500/10 text-rose-400 border-rose-500/20; }
+  .badge-cyan { @apply badge bg-cyan-500/10 text-cyan-400 border-cyan-500/20; }
+  .badge-violet { @apply badge bg-violet-500/10 text-violet-400 border-violet-500/20; }
 }
 
 /* ─── Ambient Glow Dot Grid ─── */

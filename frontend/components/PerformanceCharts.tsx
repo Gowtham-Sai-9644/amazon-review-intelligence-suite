@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
 
@@ -157,6 +157,7 @@ export default function PerformanceCharts({
   sentimentDist,
   qualityDist,
 }: PerformanceChartsProps) {
+  const [chartType, setChartType] = useState<'bar' | 'area'>('area');
   const sentimentData = sentimentDist
     ? Object.entries(sentimentDist).map(([name, value]) => ({ name, value }))
     : [];
@@ -166,94 +167,214 @@ export default function PerformanceCharts({
 
   return (
     <div className="space-y-8">
-      {/* ═══ Model Comparison Bar Chart ═══ */}
+      {/* ═══ Model Comparison Chart ═══ */}
       <div className="glass p-6 lg:p-8">
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-100 tracking-tight">
-            Model Progression Comparison
-          </h3>
-          <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
-            Baseline Logistic Regression → XGBoost → Transformer Fusion benchmarks
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 className="text-lg font-bold text-gray-100 tracking-tight">
+              Model Progression Comparison
+            </h3>
+            <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+              Baseline Logistic Regression → XGBoost → Transformer Fusion benchmarks
+            </p>
+          </div>
+          <div className="flex items-center gap-1 p-0.5 rounded-xl bg-white/[0.03] border border-white/[0.05] self-start sm:self-center">
+            <button
+              onClick={() => setChartType('area')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                chartType === 'area'
+                  ? 'bg-blue-500 text-white shadow-md shadow-blue-500/10'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Trend Area
+            </button>
+            <button
+              onClick={() => setChartType('bar')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                chartType === 'bar'
+                  ? 'bg-blue-500 text-white shadow-md shadow-blue-500/10'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Bar View
+            </button>
+          </div>
         </div>
 
         <div className="h-[420px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={metrics}
-              margin={{ top: 16, right: 16, left: -8, bottom: 4 }}
-              barCategoryGap="20%"
-              barGap={4}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="rgba(255,255,255,0.04)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="model"
-                stroke="#64748B"
-                fontSize={11}
-                fontWeight={500}
-                tickLine={false}
-                axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
-                dy={8}
-                interval={0}
-                tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
-                  <text
-                    x={x}
-                    y={y + 12}
-                    textAnchor="middle"
-                    fill="#64748B"
-                    fontSize={10}
-                    fontWeight={500}
-                  >
-                    {payload.value.length > 14
-                      ? payload.value.slice(0, 12) + '…'
-                      : payload.value}
-                  </text>
-                )}
-              />
-              <YAxis
-                stroke="#64748B"
-                fontSize={10}
-                domain={[0, 100]}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v: number) => `${v}%`}
-              />
-              <Tooltip
-                content={<CustomBarTooltip />}
-                cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-              />
-              <Legend
-                wrapperStyle={{
-                  fontSize: '11px',
-                  paddingTop: '20px',
-                  fontWeight: 500,
-                }}
-                iconType="circle"
-                iconSize={8}
-              />
-              <Bar
-                dataKey="accuracy"
-                name="Accuracy (%)"
-                fill="#6366F1"
-                radius={[6, 6, 0, 0]}
-              />
-              <Bar
-                dataKey="f1"
-                name="F1-Score (%)"
-                fill="#8B5CF6"
-                radius={[6, 6, 0, 0]}
-              />
-              <Bar
-                dataKey="roc_auc"
-                name="ROC-AUC (%)"
-                fill="#22D3EE"
-                radius={[6, 6, 0, 0]}
-              />
-            </BarChart>
+            {chartType === 'bar' ? (
+              <BarChart
+                data={metrics}
+                margin={{ top: 16, right: 16, left: -8, bottom: 4 }}
+                barCategoryGap="20%"
+                barGap={4}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.04)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="model"
+                  stroke="#64748B"
+                  fontSize={11}
+                  fontWeight={500}
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+                  dy={8}
+                  interval={0}
+                  tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
+                    <text
+                      x={x}
+                      y={y + 12}
+                      textAnchor="middle"
+                      fill="#64748B"
+                      fontSize={10}
+                      fontWeight={500}
+                    >
+                      {payload.value.length > 14
+                        ? payload.value.slice(0, 12) + '…'
+                        : payload.value}
+                    </text>
+                  )}
+                />
+                <YAxis
+                  stroke="#64748B"
+                  fontSize={10}
+                  domain={[0, 100]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v: number) => `${v}%`}
+                />
+                <Tooltip
+                  content={<CustomBarTooltip />}
+                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                />
+                <Legend
+                  wrapperStyle={{
+                    fontSize: '11px',
+                    paddingTop: '20px',
+                    fontWeight: 500,
+                  }}
+                  iconType="circle"
+                  iconSize={8}
+                />
+                <Bar
+                  dataKey="accuracy"
+                  name="Accuracy (%)"
+                  fill="#6366F1"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="f1"
+                  name="F1-Score (%)"
+                  fill="#8B5CF6"
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="roc_auc"
+                  name="ROC-AUC (%)"
+                  fill="#22D3EE"
+                  radius={[6, 6, 0, 0]}
+                />
+              </BarChart>
+            ) : (
+              <AreaChart
+                data={metrics}
+                margin={{ top: 16, right: 16, left: -8, bottom: 4 }}
+              >
+                <defs>
+                  <linearGradient id="accuracyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="f1Grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="rocAucGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22D3EE" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#22D3EE" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.04)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="model"
+                  stroke="#64748B"
+                  fontSize={11}
+                  fontWeight={500}
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+                  dy={8}
+                  interval={0}
+                  tick={({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => (
+                    <text
+                      x={x}
+                      y={y + 12}
+                      textAnchor="middle"
+                      fill="#64748B"
+                      fontSize={10}
+                      fontWeight={500}
+                    >
+                      {payload.value.length > 14
+                        ? payload.value.slice(0, 12) + '…'
+                        : payload.value}
+                    </text>
+                  )}
+                />
+                <YAxis
+                  stroke="#64748B"
+                  fontSize={10}
+                  domain={[0, 100]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v: number) => `${v}%`}
+                />
+                <Tooltip
+                  content={<CustomBarTooltip />}
+                  cursor={{ stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1, strokeDasharray: '4 4' }}
+                />
+                <Legend
+                  wrapperStyle={{
+                    fontSize: '11px',
+                    paddingTop: '20px',
+                    fontWeight: 500,
+                  }}
+                  iconType="circle"
+                  iconSize={8}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="accuracy"
+                  name="Accuracy (%)"
+                  stroke="#6366F1"
+                  strokeWidth={2}
+                  fill="url(#accuracyGrad)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="f1"
+                  name="F1-Score (%)"
+                  stroke="#8B5CF6"
+                  strokeWidth={2}
+                  fill="url(#f1Grad)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="roc_auc"
+                  name="ROC-AUC (%)"
+                  stroke="#22D3EE"
+                  strokeWidth={2}
+                  fill="url(#rocAucGrad)"
+                />
+              </AreaChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>

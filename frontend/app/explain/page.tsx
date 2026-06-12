@@ -3,7 +3,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { analyzeReview, AnalysisResponse } from '../../lib/api';
-import ShapWaterfall from '../../components/ShapWaterfall';
+import dynamic from 'next/dynamic';
+
+const ShapWaterfall = dynamic(() => import('../../components/ShapWaterfall'), {
+  ssr: false,
+  loading: () => (
+    <div className="glass rounded-2xl p-6 min-h-[300px] border-white/5 animate-pulse flex flex-col items-center justify-center gap-3 text-center">
+      <div className="w-5 h-5 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+      <span className="text-xs text-indigo-400 font-mono">Loading SHAP explainability matrices...</span>
+    </div>
+  )
+});
 import { Sparkles, HelpCircle, GitBranch, Play, AlertCircle, Info, ChevronRight } from 'lucide-react';
 
 const EXAMPLE_REVIEW =

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Search } from 'lucide-react';
 
 const links = [
   { href: '/', label: 'Home' },
@@ -82,6 +82,19 @@ export default function Navigation() {
 
           {/* Right */}
           <div className="flex items-center gap-3">
+            {/* Search Trigger */}
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true });
+                window.dispatchEvent(event);
+              }}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] hover:border-white/10 transition-all duration-200 text-gray-400 hover:text-white"
+              title="Search Console (Ctrl + K)"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-semibold font-mono bg-white/[0.08] px-1 py-0.5 rounded text-gray-300">⌘K</span>
+            </button>
+
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
