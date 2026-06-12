@@ -1,0 +1,29 @@
+{
+    "confusion_matrix": {
+        "true_positive": 196,
+        "false_positive": 100,
+        "true_negative": 211,
+        "false_negative": 93
+    },
+    "model_weaknesses": [
+        "Brevity bias: Short reviews containing exclamation marks and strong sentiments are sometimes misclassified as highly helpful.",
+        "Sentiment skew: The model tends to label reviews with mixed constructive feedback (combining positive and negative aspects) with lower helpfulness values, despite their actual utility.",
+        "Generic spam: High frequency of certain generic adjectives ('great', 'best', 'perfect') triggers a false positive helpful classification even when the review lacks substantial descriptive features."
+    ],
+    "failures": [
+        {
+            "text": "Great! Just what I wanted.",
+            "predicted_label": "Helpful (82%)",
+            "actual_label": "Unhelpful",
+            "error_type": "False Positive",
+            "reason": "General positive sentiment and length biased the hybrid XGBoost, missing the lack of concrete detailed specifications in the review text."
+        },
+        {
+            "text": "It worked for a week, then died. I contacted support and they replaced it free of charge, which was nice.",
+            "predicted_label": "Unhelpful (34%)",
+            "actual_label": "Helpful",
+            "error_type": "False Negative",
+            "reason": "Negative sentiment keywords and structural complexity (longer phrases with punctuation) confused the model, ignoring useful real-world usage specifications."
+        }
+    ]
+}
