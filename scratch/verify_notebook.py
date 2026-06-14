@@ -32,15 +32,17 @@ def verify_notebook():
     sections = [
         "1. Problem Statement",
         "2. Dataset Overview",
-        "3. Data Preprocessing & Loading", # matching notebook version of Data Cleaning & Preprocessing
+        "3. Data Cleaning & Preprocessing",
         "4. Feature Engineering",
         "5. Sentence Embeddings",
         "6. Hybrid Feature Fusion",
         "7. XGBoost Model Training",
         "8. Evaluation Metrics",
-        "9. Explainable AI",
-        "10. Business Insights",
-        "11. Conclusion"
+        "9. Model Limitations & Error Analysis",
+        "10. Explainable AI",
+        "11. Business Insights",
+        "12. Engineering Decisions",
+        "13. Conclusion"
     ]
     
     print("\n--- Verifying Sections ---")
