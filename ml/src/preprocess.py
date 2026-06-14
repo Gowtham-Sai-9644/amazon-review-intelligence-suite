@@ -120,6 +120,11 @@ class TextEmbeddingExtractor:
         
     def load_model(self):
         if self.model is None:
+            import os
+            if os.environ.get("RENDER") == "true" or os.environ.get("DISABLE_DEEP_ML") == "true":
+                print("Render Free Tier detected. Bypassing PyTorch/sentence-transformers to prevent memory limit exhaustion.")
+                self.model = "fallback"
+                return
             try:
                 from sentence_transformers import SentenceTransformer
                 self.model = SentenceTransformer(self.model_name)
