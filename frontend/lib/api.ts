@@ -77,33 +77,59 @@ export interface ErrorAnalysisResponse {
   failures: FailureExample[];
 }
 
-export async function analyzeReview(text: string): Promise<AnalysisResponse> {
-  const res = await fetch(`${API_BASE_URL}/analyze-review`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || 'Failed to analyze review');
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error: any) {
+    clearTimeout(id);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. The server might be overloaded or offline.');
+    }
+    throw error;
   }
-  return res.json();
+}
+
+export async function analyzeReview(text: string): Promise<AnalysisResponse> {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/analyze-review`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    }, 18000); // Allow slightly longer (18s) for full SHAP computation
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to analyze review');
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.message.includes('Failed to fetch') || err.message.includes('fetch')) {
+      throw new Error('Failed to connect to the backend server. Please verify uvicorn is running.');
+    }
+    throw err;
+  }
 }
 
 export async function getAnalytics(): Promise<AnalyticsResponse> {
-  const res = await fetch(`${API_BASE_URL}/analytics`);
+  const res = await fetchWithTimeout(`${API_BASE_URL}/analytics`);
   if (!res.ok) throw new Error('Failed to fetch analytics');
   return res.json();
 }
 
 export async function getBusinessInsights(): Promise<BusinessInsightsResponse> {
-  const res = await fetch(`${API_BASE_URL}/business-insights`);
+  const res = await fetchWithTimeout(`${API_BASE_URL}/business-insights`);
   if (!res.ok) throw new Error('Failed to fetch business insights');
   return res.json();
 }
 
 export async function getErrorAnalysis(): Promise<ErrorAnalysisResponse> {
-  const res = await fetch(`${API_BASE_URL}/error-analysis`);
+  const res = await fetchWithTimeout(`${API_BASE_URL}/error-analysis`);
   if (!res.ok) throw new Error('Failed to fetch error analysis');
   return res.json();
 }
@@ -115,7 +141,7 @@ export interface HealthCheckResponse {
 }
 
 export async function getHealthCheck(): Promise<HealthCheckResponse> {
-  const res = await fetch(`${API_BASE_URL}/health`);
+  const res = await fetchWithTimeout(`${API_BASE_URL}/health`);
   if (!res.ok) throw new Error('Failed to fetch system health');
   return res.json();
 }
